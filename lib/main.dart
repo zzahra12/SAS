@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'splash.dart';
+import 'home.dart';
 
 void main() {
   runApp(const MyApp());

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -133,7 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const HomePage()),
+                          MaterialPageRoute(builder: (context) => const StoLayananHomePage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -173,18 +174,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         color: _currentPage == index ? const Color(0xFF5D69FF) : Colors.grey.shade300,
         borderRadius: BorderRadius.circular(4),
       ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Muara App"), centerTitle: true),
-      body: const Center(child: Text("Halaman Utama")),
     );
   }
 }
