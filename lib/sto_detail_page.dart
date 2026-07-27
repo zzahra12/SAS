@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 
-class StoDetailPage extends StatelessWidget {
+// 1. Import file-file halaman tujuan
+import 'housekeeping_page.dart';
+import 'jaringan_page.dart';
+import 'backbound_page.dart';
+
+class StoDetailPage extends StatefulWidget {
   final String name;
   final String address;
   final String description;
 
-  Widget _buildSettingsMenuItem(String title, bool selected) {
+  const StoDetailPage({
+    Key? key,
+    required this.name,
+    required this.address,
+    required this.description,
+  }) : super(key: key);
+
+  @override
+  State<StoDetailPage> createState() => _StoDetailPageState();
+}
+
+class _StoDetailPageState extends State<StoDetailPage> {
+  Widget _buildSettingsMenuItem(String title) {
+    // Halaman ini adalah halaman Security, jadi Satpam selalu aktif.
+    final selected = title == 'Satpam';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -33,24 +52,17 @@ class StoDetailPage extends StatelessWidget {
     );
   }
 
-  const StoDetailPage({
-    Key? key,
-    required this.name,
-    required this.address,
-    required this.description,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(name),
+        title: Text(widget.name),
         centerTitle: true,
         backgroundColor: const Color(0xFF1E88E5),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -74,25 +86,49 @@ class StoDetailPage extends StatelessWidget {
                     itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 'Satpam',
-                        child: _buildSettingsMenuItem('Satpam', true),
+                        child: _buildSettingsMenuItem('Satpam'),
                       ),
                       const PopupMenuDivider(height: 0),
                       PopupMenuItem(
                         value: 'Housekeeping',
-                        child: _buildSettingsMenuItem('Housekeeping', false),
+                        child: _buildSettingsMenuItem('Housekeeping'),
                       ),
                       const PopupMenuDivider(height: 0),
                       PopupMenuItem(
                         value: 'Jaringan',
-                        child: _buildSettingsMenuItem('Jaringan', false),
+                        child: _buildSettingsMenuItem('Jaringan'),
                       ),
                       const PopupMenuDivider(height: 0),
                       PopupMenuItem(
-                        value: 'Backboud',
-                        child: _buildSettingsMenuItem('Backboud', false),
+                        value: 'Backbound',
+                        child: _buildSettingsMenuItem('Backbound'),
                       ),
                     ],
-                    onSelected: (_) {},
+                    // 2. Fungsi pindah halaman saat menu diklik
+                    onSelected: (String value) {
+                      if (value == 'Housekeeping') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HousekeepingPage(),
+                          ),
+                        );
+                      } else if (value == 'Jaringan') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const JaringanPage(),
+                          ),
+                        );
+                      } else if (value == 'Backbound') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const BackboundPage(),
+                          ),
+                        );
+                      }
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFFE3F2FD),
@@ -127,7 +163,7 @@ class StoDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      widget.name,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -135,7 +171,7 @@ class StoDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      address,
+                      widget.address,
                       style: const TextStyle(
                         color: Colors.black54,
                         fontSize: 14,
@@ -143,7 +179,7 @@ class StoDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      description,
+                      widget.description,
                       style: const TextStyle(
                         color: Colors.black87,
                         fontSize: 14,
@@ -205,16 +241,17 @@ class StoDetailPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 14),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
                           width: 56,
                           height: 56,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFFDCEFFF),
+                            color: Color(0xFFDCEFFF),
                           ),
                           child: const Icon(
                             Icons.person,
@@ -233,7 +270,8 @@ class StoDetailPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE3F2FD),
                             borderRadius: BorderRadius.circular(12),

@@ -1,5 +1,79 @@
 import 'package:flutter/material.dart';
 
+class SettingsMenuButton extends StatelessWidget {
+  final String selectedCategory;
+  final ValueChanged<String> onSelected;
+
+  const SettingsMenuButton({
+    Key? key,
+    required this.selectedCategory,
+    required this.onSelected,
+  }) : super(key: key);
+
+  Widget _menuItem(String title) {
+    final selected = selectedCategory == title;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? const Color(0xFF1E88E5) : Colors.black87,
+            ),
+          ),
+          if (selected)
+            const Icon(
+              Icons.circle,
+              size: 12,
+              color: Color(0xFF1E88E5),
+            ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      tooltip: 'Pengaturan',
+      padding: EdgeInsets.zero,
+      offset: const Offset(0, 10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
+      color: Colors.white,
+      onSelected: onSelected,
+      itemBuilder: (context) => [
+        PopupMenuItem(value: 'Satpam', child: _menuItem('Satpam')),
+        const PopupMenuDivider(height: 0),
+        PopupMenuItem(
+          value: 'Housekeeping',
+          child: _menuItem('Housekeeping'),
+        ),
+        const PopupMenuDivider(height: 0),
+        PopupMenuItem(value: 'Jaringan', child: _menuItem('Jaringan')),
+        const PopupMenuDivider(height: 0),
+        PopupMenuItem(value: 'Backbound', child: _menuItem('Backbound')),
+      ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFE3F2FD),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(8),
+        child: const Icon(
+          Icons.settings,
+          color: Color(0xFF1E88E5),
+        ),
+      ),
+    );
+  }
+}
+
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
@@ -65,7 +139,7 @@ class SettingsPage extends StatelessWidget {
                   const Divider(height: 0),
                   _buildItem(title: 'Jaringan'),
                   const Divider(height: 0),
-                  _buildItem(title: 'Backboud'),
+                  _buildItem(title: 'Backbound'),
                   const SizedBox(height: 18),
                 ],
               ),

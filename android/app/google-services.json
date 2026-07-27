@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "486730364237",
+    "project_id": "sas-telkom",
+    "storage_bucket": "sas-telkom.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:486730364237:android:bbe8144c78cb3523df7304",
+        "android_client_info": {
+          "package_name": "com.example.sas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBQhRDI3iGbFsbKdVU1e6ubpH1mQwBwnk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
