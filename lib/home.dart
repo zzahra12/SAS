@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'sto_detail_page.dart';
 
-
 class StoItem {
   final String id;
+  final String docId; // Atribut tambahan untuk ID Dokumen Firestore
   final String name;
   final String address;
   final String description;
 
   StoItem({
     required this.id,
+    required this.docId,
     required this.name,
     required this.address,
-    this.description = 'Layanan operasional Telkom STO terdekat untuk fasilitas Security & Safety.',
+    this.description =
+        'Layanan operasional Telkom STO terdekat untuk fasilitas Security & Safety.',
   });
 }
 
@@ -51,21 +53,80 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
   // Controller untuk input pencarian
   final TextEditingController _searchController = TextEditingController();
 
-  // Master Data STO berdasarkan gambar
+  // Master Data TEPAT 12 STO dengan pemetaan docId ke Firestore
   final List<StoItem> _allStoList = [
-    StoItem(id: '1', name: 'Plasa Telda Banyuwangi', address: 'Jln. Blambangan'),
-    StoItem(id: '2', name: 'STO Telda Banyuwangi', address: 'Jln. Blambangan'),
-    StoItem(id: '3', name: 'STO Ketapang', address: 'Jln. Ketapang'),
-    StoItem(id: '4', name: 'STO Wongsorejo', address: 'Jln. Wongsorejo'),
-    StoItem(id: '5', name: 'STO Rogojampi', address: 'Jln. Rogojampi'),
-    StoItem(id: '6', name: 'STO Muncar', address: 'Jln. Muncar'),
-    StoItem(id: '7', name: 'STO Benculuk', address: 'Jln. Benculuk'),
-    StoItem(id: '8', name: 'STO Trambelang', address: 'Jln. Trambelang'),
-    StoItem(id: '9', name: 'Plasa Telda Banyuwangi', address: 'Jln. Blambangan'),
-    StoItem(id: '10', name: 'STO Pesanggaran', address: 'Jln. Pesanggaran'),
-    StoItem(id: '11', name: 'STO Genteng', address: 'Jln. Genteng'),
-    StoItem(id: '12', name: 'STO Glenmore', address: 'Jln. Glenmore'),
-    StoItem(id: '13', name: 'STO Kalibaru', address: 'Jln. Kalibaru'),
+    StoItem(
+      id: '1',
+      docId: 'Banyuwangi',
+      name: 'Plasa Telda Banyuwangi',
+      address: 'Jln. Blambangan',
+    ),
+    StoItem(
+      id: '2',
+      docId: 'sto_Banyuwangi',
+      name: 'STO Telda Banyuwangi',
+      address: 'Jln. Blambangan',
+    ),
+    StoItem(
+      id: '3',
+      docId: 'Ketapang',
+      name: 'STO Ketapang',
+      address: 'Jln. Ketapang',
+    ),
+    StoItem(
+      id: '4',
+      docId: 'Wongsorejo',
+      name: 'STO Wongsorejo',
+      address: 'Jln. Wongsorejo',
+    ),
+    StoItem(
+      id: '5',
+      docId: 'Rogojampi',
+      name: 'STO Rogojampi',
+      address: 'Jln. Rogojampi',
+    ),
+    StoItem(
+      id: '6',
+      docId: 'Muncar',
+      name: 'STO Muncar',
+      address: 'Jln. Muncar',
+    ),
+    StoItem(
+      id: '7',
+      docId: 'Benculuk',
+      name: 'STO Benculuk',
+      address: 'Jln. Benculuk',
+    ),
+    StoItem(
+      id: '8',
+      docId: 'Trambelang',
+      name: 'STO Trambelang',
+      address: 'Jln. Trambelang',
+    ),
+    StoItem(
+      id: '9',
+      docId: 'Pesanggaran',
+      name: 'STO Pesanggaran',
+      address: 'Jln. Pesanggaran',
+    ),
+    StoItem(
+      id: '10',
+      docId: 'Genteng',
+      name: 'STO Genteng',
+      address: 'Jln. Genteng',
+    ),
+    StoItem(
+      id: '11',
+      docId: 'Glenmore',
+      name: 'STO Glenmore',
+      address: 'Jln. Glenmore',
+    ),
+    StoItem(
+      id: '12',
+      docId: 'Kalibaru',
+      name: 'STO Kalibaru',
+      address: 'Jln. Kalibaru',
+    ),
   ];
 
   // List terfilter yang akan ditampilkan di UI
@@ -95,16 +156,16 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
     });
   }
 
+  // HEADER BANNER BERGAMBAR DARI ASSETS DENGAN EFEK GELAP DI SISI KIRI
   Widget _buildHeaderBanner() {
     return Container(
       width: double.infinity,
-      height: 180,
+      height: 190,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2B5876), Color(0xFF4E4376)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        border: Border.all(
+          color: const Color(0xFF1E88E5), // Border biru luar
+          width: 2.5,
         ),
         boxShadow: [
           BoxShadow(
@@ -114,66 +175,91 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          // Gambar Latar / Ilustrasi Gedung Telda
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Opacity(
-              opacity: 0.35,
-              child: Image.network(
-                'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=800&q=80',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(color: Colors.blueGrey);
-                },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(17),
+        child: Stack(
+          children: [
+            // 1. Gambar Gedung dari Assets
+            Image.asset(
+              'assets/telkom.jpg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.blueGrey,
+                  child: const Center(
+                    child: Text(
+                      'Gambar telkom.jpg tidak ditemukan di assets',
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            // 2. GRADIENT OVERLAY (Sisi Kiri Lebih Gelap untuk Tulisan)
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft, // Gelap dimulai dari sisi kiri
+                  end: Alignment.centerRight,   // Berangsur transparan ke sisi kanan
+                  colors: [
+                    Colors.black.withOpacity(0.60), // Kiri agak gelap
+                    Colors.black.withOpacity(0.25), // Tengah sedang
+                    Colors.transparent,             // Kanan bening/terang
+                  ],
+                  stops: const [0.0, 0.55, 1.0],
+                ),
               ),
             ),
-          ),
-          // Overlay Teks
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  'SELAMAT DATANG!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.8,
-                  ),
+
+            // 3. Teks Header
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      'SELAMAT DATANG!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'Security And Safety\n(SAS)',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Telda Banyuwangi',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 6),
-                Text(
-                  'Security And Safety\n(SAS)',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    height: 1.2,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Telda Banyuwangi',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -210,7 +296,7 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFE0E0E0), // Abu-abu terang sesuai UI sampel
+        color: const Color(0xFFE0E0E0),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -240,7 +326,7 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
                     _navigateToStoDetail(sto);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E88E5), // Biru Terang
+                    backgroundColor: const Color(0xFF1E88E5),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -278,7 +364,7 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
                 _showDetailDialog(sto);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0D47A1), // Biru Tua
+                backgroundColor: const Color(0xFF0D47A1),
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -306,6 +392,7 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
       MaterialPageRoute(
         builder: (context) => StoDetailPage(
           name: sto.name,
+          docId: sto.docId, // Mengirimkan ID Dokumen Firestore
           address: sto.address,
           description: sto.description,
         ),
