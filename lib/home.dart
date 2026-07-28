@@ -3,7 +3,7 @@ import 'sto_detail_page.dart';
 
 class StoItem {
   final String id;
-  final String docId; // Atribut tambahan untuk ID Dokumen Firestore
+  final String docId; 
   final String name;
   final String address;
   final String description;
@@ -22,7 +22,6 @@ void main() {
   runApp(const StoLayananApp());
 }
 
-/// Widget Utama Aplikasi
 class StoLayananApp extends StatelessWidget {
   const StoLayananApp({Key? key}) : super(key: key);
 
@@ -50,10 +49,8 @@ class StoLayananHomePage extends StatefulWidget {
 }
 
 class _StoLayananHomePageState extends State<StoLayananHomePage> {
-  // Controller untuk input pencarian
   final TextEditingController _searchController = TextEditingController();
 
-  // Master Data TEPAT 12 STO dengan pemetaan docId ke Firestore
   final List<StoItem> _allStoList = [
     StoItem(
       id: '1',
@@ -129,7 +126,6 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
     ),
   ];
 
-  // List terfilter yang akan ditampilkan di UI
   List<StoItem> _filteredStoList = [];
 
   @override
@@ -145,7 +141,6 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
     super.dispose();
   }
 
-  // Fungsi penyaringan query pencarian
   void _filterList() {
     final query = _searchController.text.toLowerCase();
     setState(() {
@@ -156,7 +151,6 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
     });
   }
 
-  // HEADER BANNER BERGAMBAR DARI ASSETS DENGAN EFEK GELAP DI SISI KIRI
   Widget _buildHeaderBanner() {
     return Container(
       width: double.infinity,
@@ -164,7 +158,7 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF1E88E5), // Border biru luar
+          color: const Color(0xFF1E88E5), 
           width: 2.5,
         ),
         boxShadow: [
@@ -198,25 +192,23 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
               },
             ),
 
-            // 2. GRADIENT OVERLAY (Sisi Kiri Lebih Gelap untuk Tulisan)
             Container(
               width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.centerLeft, // Gelap dimulai dari sisi kiri
-                  end: Alignment.centerRight,   // Berangsur transparan ke sisi kanan
+                  begin: Alignment.centerLeft, 
+                  end: Alignment.centerRight,  
                   colors: [
-                    Colors.black.withOpacity(0.60), // Kiri agak gelap
-                    Colors.black.withOpacity(0.25), // Tengah sedang
-                    Colors.transparent,             // Kanan bening/terang
+                    Colors.black.withOpacity(0.60), 
+                    Colors.black.withOpacity(0.25), 
+                    Colors.transparent,             
                   ],
                   stops: const [0.0, 0.55, 1.0],
                 ),
               ),
             ),
 
-            // 3. Teks Header
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -356,7 +348,6 @@ class _StoLayananHomePageState extends State<StoLayananHomePage> {
             ),
           ),
           const SizedBox(height: 12),
-          // Tombol Lihat Selengkapnya
           SizedBox(
             height: 32,
             child: ElevatedButton(
