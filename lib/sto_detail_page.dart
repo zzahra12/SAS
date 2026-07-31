@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+// Import file-file halaman tujuan
 import 'housekeeping_page.dart';
 import 'jaringan_page.dart';
-import 'backbound_page.dart';
 
 class StoDetailPage extends StatefulWidget {
-  final String name; 
-  final String? docId; 
+  final String name; // Nama judul tampilan (misal: 'Plasa Telda Banyuwangi')
+  final String? docId; // ID Dokumen Firestore (misal: 'Banyuwangi')
   final String address;
   final String description;
 
@@ -67,26 +68,31 @@ class _StoDetailPageState extends State<StoDetailPage> {
       return widget.docId!;
     }
     return widget.name
+        .replaceAll('Plasa ', '')
         .replaceAll('Telda ', '')
         .trim();
   }
-  List<String> _getTugasUtama(String nama, String tagArea) {
-    if (tagArea == 'POS UTAMA') {
+
+  // LOGIKA TUGAS UTAMA SECURITY
+  List<String> _getTugasUtama(String nama) {
+    String namaLower = nama.toLowerCase();
+
+    // Khusus Pak Nanang (Kepala Kelompok)
+    if (namaLower.contains('nanang')) {
       return [
-        'Supervisi komando area, kontrol tamu & monitoring CCTV',
-        'Penanganan awal & koordinasi tanggap darurat',
-      ];
-    } else if (tagArea == 'GRAPARI') {
-      return [
-        'Pengawasan area pelayanan umum & antrean pengunjung',
-        'Penerapan standar K3 keselamatan seluruh pelanggan',
-      ];
-    } else {
-      return [
-        'Patroli berkala area publik & booth display IndiBiz',
-        'Proteksi fisik jaringan & pencegahan risiko aset',
+        'Pengawasan, operasional, dan keamanan lingkungan kerja (Kepala Kelompok)',
       ];
     }
+
+    // Tugas Utama & Fungsi umum untuk Security lainnya
+    return [
+      'Pengaturan lalu lintas',
+      'Penjagaan pos strategis keamanan',
+      'Pengawalan',
+      'Patroli',
+      'Fungsi Preventif',
+      'Fungsi Mitra Polri',
+    ];
   }
 
   @override
@@ -116,7 +122,6 @@ class _StoDetailPageState extends State<StoDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // HEADER & POPUP MENU
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -151,11 +156,6 @@ class _StoDetailPageState extends State<StoDetailPage> {
                         value: 'Jaringan',
                         child: _buildSettingsMenuItem('Jaringan'),
                       ),
-                      const PopupMenuDivider(height: 0),
-                      PopupMenuItem(
-                        value: 'Backbound',
-                        child: _buildSettingsMenuItem('Backbound'),
-                      ),
                     ],
                     onSelected: (String value) {
                       if (value == 'Housekeeping') {
@@ -163,8 +163,8 @@ class _StoDetailPageState extends State<StoDetailPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => HousekeepingPage(
-                              stoName: widget.name, 
-                              docId: targetDocId,  
+                              stoName: widget.name,
+                              docId: targetDocId,
                             ),
                           ),
                         );
@@ -172,14 +172,10 @@ class _StoDetailPageState extends State<StoDetailPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const JaringanPage(),
-                          ),
-                        );
-                      } else if (value == 'Backbound') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BackboundPage(),
+                            builder: (context) => JaringanPage(
+                              stoName: widget.name,
+                              docId: targetDocId,
+                            ),
                           ),
                         );
                       }
@@ -203,74 +199,135 @@ class _StoDetailPageState extends State<StoDetailPage> {
               const SizedBox(height: 16),
 
               if (!_showPersonelDetailMode) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
+                // MEMBACA ALAMAT DAN DESKRIPSI DARI FIRESTORE SECARA DINAMIS
+                StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('sto')
+                      .doc(targetDocId)
+                      .snapshots(),
+                  builder: (context, stoSnapshot) {
+                    String address = widget.address.isNotEmpty
+                        ? widget.address
+                        : 'Jln. Operasional STO';
+                    String description = widget.description.isNotEmpty
+                        ? widget.description
+                        : 'Layanan operasional ${widget.name} untuk fasilitas Security.';
+
+                    if (stoSnapshot.hasData && stoSnapshot.data!.exists) {
+                      var stoData =
+                          stoSnapshot.data!.data() as Map<String, dynamic>?;
+                      if (stoData != null) {
+                        address = stoData['address'] ??
+                            stoData['alamat'] ??
+                            address;
+                        description = stoData['description'] ??
+                            stoData['deskripsi'] ??
+                            description;
+                      }
+                    }
+
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.address,
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        widget.description,
-                        style: const TextStyle(
-                          color: Colors.black87,
-                          fontSize: 14,
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E88E5),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          child: const Text(
-                            'Pilih STO Ini',
-                            style: TextStyle(fontSize: 16),
+                          const SizedBox(height: 8),
+                          Text(
+                            address,
+                            style: const TextStyle(
+                              color: Colors.black54,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          Text(
+                            description,
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 14,
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1E88E5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              child: const Text(
+                                'Pilih STO Ini',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Tim Security',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                // HEADER JUDUL TIM + TOMBOL LIHAT DETAIL DI SEBELAH KANAN
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Tim Security',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _showPersonelDetailMode = true;
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      icon: const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 13,
+                        color: Color(0xFF1E88E5),
+                      ),
+                      label: const Text(
+                        'Lihat Detail',
+                        style: TextStyle(
+                          color: Color(0xFF1E88E5),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 14),
               ],
@@ -347,7 +404,6 @@ class _StoDetailPageState extends State<StoDetailPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // FOTO ANGGOTA
                               Container(
                                 width: 56,
                                 height: 56,
@@ -373,7 +429,6 @@ class _StoDetailPageState extends State<StoDetailPage> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-
                               Text(
                                 nama,
                                 textAlign: TextAlign.center,
@@ -385,27 +440,19 @@ class _StoDetailPageState extends State<StoDetailPage> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _showPersonelDetailMode = true;
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE3F2FD),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Text(
-                                    'SECURITY',
-                                    style: TextStyle(
-                                      color: Color(0xFF1E88E5),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE3F2FD),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Text(
+                                  'SECURITY',
+                                  style: TextStyle(
+                                    color: Color(0xFF1E88E5),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
@@ -424,7 +471,6 @@ class _StoDetailPageState extends State<StoDetailPage> {
 
                   return Column(
                     children: [
-
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -473,7 +519,7 @@ class _StoDetailPageState extends State<StoDetailPage> {
                                   });
                                 },
                                 decoration: const InputDecoration(
-                                  hintText: 'Cari nama atau area tugas...',
+                                  hintText: 'Cari nama personel...',
                                   hintStyle: TextStyle(
                                       color: Colors.grey, fontSize: 13),
                                   prefixIcon:
@@ -488,7 +534,6 @@ class _StoDetailPageState extends State<StoDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       ListView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
@@ -498,22 +543,11 @@ class _StoDetailPageState extends State<StoDetailPage> {
                               filteredDocs[index].data() as Map<String, dynamic>;
                           String nama = data['name'] ?? 'Tanpa Nama';
                           String photoUrl = data['photoUrl'] ?? '';
+                          String? customTag = data['tag'];
 
-                          String tagArea = index == 0
-                              ? 'POS UTAMA'
-                              : (index == 1 ? 'GRAPARI' : 'INDIBIZ');
-                          Color tagBg = index == 0
-                              ? const Color(0xFFE3F2FD)
-                              : (index == 1
-                                  ? const Color(0xFFE8F5E9)
-                                  : const Color(0xFFFFF3E0));
-                          Color tagText = index == 0
-                              ? const Color(0xFF1565C0)
-                              : (index == 1
-                                  ? const Color(0xFF2E7D32)
-                                  : const Color(0xFFE65100));
-
-                          List<String> tasks = _getTugasUtama(nama, tagArea);
+                          List<String> tasks = data['tasks'] != null
+                              ? List<String>.from(data['tasks'])
+                              : _getTugasUtama(nama);
 
                           return Container(
                             margin: const EdgeInsets.only(bottom: 16),
@@ -572,22 +606,23 @@ class _StoDetailPageState extends State<StoDetailPage> {
                                         ],
                                       ),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: tagBg,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        tagArea,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: tagText,
+                                    if (customTag != null && customTag.isNotEmpty)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFE3F2FD),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          customTag,
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF1565C0),
+                                          ),
                                         ),
                                       ),
-                                    )
                                   ],
                                 ),
                                 const SizedBox(height: 12),

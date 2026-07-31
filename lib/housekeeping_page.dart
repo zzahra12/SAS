@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'settings_page.dart';
-import 'backbound_page.dart';
 import 'jaringan_page.dart';
 
 class HousekeepingPage extends StatefulWidget {
@@ -33,29 +32,16 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
     if (widget.docId != null && widget.docId!.isNotEmpty) {
       return widget.docId!;
     }
-   
     return widget.stoName
         .replaceAll('Telda ', '')
         .trim();
   }
 
-  List<String> _getTugasUtama(String nama, String tagArea) {
-    if (tagArea == 'AREA INDOOR') {
-      return [
-        'Pembersihan dan sterilisasi ruang kerja & lobi kantor',
-        'Pemeliharaan kebersihan fasilitas umum & toilet',
-      ];
-    } else if (tagArea == 'AREA OUTDOOR') {
-      return [
-        'Pembersihan halaman luar, sarana parkir & vegetasi',
-        'Pemisahan serta pengelolaan sampah operasional',
-      ];
-    } else {
-      return [
-        'Penanggung jawab penuh kebersihan indoor & outdoor STO',
-        'Sanitasi berkala area pelayanan & penataan kerapian',
-      ];
-    }
+  List<String> _getTugasUtama(String nama) {
+    return [
+      'Pembersihan dan sterilisasi ruang kerja & lobi kantor',
+      'Pemeliharaan kebersihan fasilitas umum & toilet',
+    ];
   }
 
   @override
@@ -89,7 +75,6 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // HEADER & POPUP SETTINGS MENU
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -107,18 +92,14 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
                     onSelected: (value) {
                       if (value == 'Satpam') {
                         Navigator.pop(context);
-                      } else if (value == 'Backbound') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const BackboundPage(),
-                          ),
-                        );
                       } else if (value == 'Jaringan') {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const JaringanPage(),
+                            builder: (_) => JaringanPage(
+                            stoName: widget.stoName,
+                             docId: targetDocId,
+                            ),
                           ),
                         );
                       }
@@ -199,17 +180,49 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
                   },
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Tim Housekeeping',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+
+                // HEADER JUDUL TIM + TOMBOL LIHAT DETAIL DI POJOK KANAN
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Tim Housekeeping',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _showPersonelDetailMode = true;
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      icon: const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 13,
+                        color: Color(0xFF2E7D32),
+                      ),
+                      label: const Text(
+                        'Lihat Detail',
+                        style: TextStyle(
+                          color: Color(0xFF2E7D32),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
               ],
 
-              // STREAMBUILDER ANGGOTA TIM TERHUBUNG KE FIREBASE
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('sto')
@@ -321,28 +334,21 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _showPersonelDetailMode = true;
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE8F5E9),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Text(
-                                    'HOUSEKEEPING',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      color: Color(0xFF2E7D32),
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE8F5E9),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Text(
+                                  'HOUSEKEEPING',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: Color(0xFF2E7D32),
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
@@ -412,7 +418,7 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
                                   });
                                 },
                                 decoration: const InputDecoration(
-                                  hintText: 'Cari nama atau area tugas...',
+                                  hintText: 'Cari nama personel...',
                                   hintStyle: TextStyle(
                                       color: Colors.grey, fontSize: 13),
                                   prefixIcon:
@@ -427,7 +433,6 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       ListView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
@@ -438,23 +443,9 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
                           String nama = data['name'] ?? 'Tanpa Nama';
                           String photoUrl = data['photoUrl'] ?? '';
 
-                          String tagArea = data['tag'] ??
-                              (docs.length == 1
-                                  ? 'ALL AREA'
-                                  : (index == 0
-                                      ? 'AREA INDOOR'
-                                      : 'AREA OUTDOOR'));
-
-                          Color tagBg = index == 0
-                              ? const Color(0xFFE8F5E9)
-                              : const Color(0xFFFFF3E0);
-                          Color tagText = index == 0
-                              ? const Color(0xFF2E7D32)
-                              : const Color(0xFFE65100);
-
                           List<String> tasks = data['tasks'] != null
                               ? List<String>.from(data['tasks'])
-                              : _getTugasUtama(nama, tagArea);
+                              : _getTugasUtama(nama);
 
                           return Container(
                             margin: const EdgeInsets.only(bottom: 16),
@@ -520,22 +511,6 @@ class _HousekeepingPageState extends State<HousekeepingPage> {
                                         ],
                                       ),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: tagBg,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        tagArea,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: tagText,
-                                        ),
-                                      ),
-                                    )
                                   ],
                                 ),
                                 const SizedBox(height: 12),
